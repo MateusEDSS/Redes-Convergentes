@@ -1,0 +1,69 @@
+version: '3.9'
+
+services:
+
+  linphone_1:
+    container_name: linphone_1
+    image: joaoweslleyif/linphone:1.0
+    devices:
+      - /dev/snd:/dev/snd
+    environment:
+      - DISPLAY=${DISPLAY}
+      - PULSE_SERVER=unix:/run/user/1000/pulse/native
+    networks:
+      rede:
+        ipv4_address: 172.16.0.10
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /run/user/1000/pulse:/run/user/1000/pulse
+
+  linphone_2:
+    image: joaoweslleyif/linphone:1.0
+    container_name: linphone_2
+    devices:
+      - /dev/snd:/dev/snd
+    environment:
+      - DISPLAY=${DISPLAY}
+      - PULSE_SERVER=unix:/run/user/1000/pulse/native
+    networks:
+      rede:
+        ipv4_address: 172.16.0.20
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /run/user/1000/pulse:/run/user/1000/pulse
+
+  linphone_3:
+    image: joaoweslleyif/linphone:1.0
+    container_name: linphone_3
+    devices:
+      - /dev/snd:/dev/snd
+    environment:
+      - DISPLAY=${DISPLAY}
+      - PULSE_SERVER=unix:/run/user/1000/pulse/native
+    networks:
+      rede:
+        ipv4_address: 172.16.0.30
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - /run/user/1000/pulse:/run/user/1000/pulse
+    
+  sngrep:
+    build: ./
+    container_name: sngrep
+    network_mode: "host"
+#    networks:
+#      rede:
+#      ipv4_address: 172.16.0.40
+    stdin_open: true
+    tty: true
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+
+networks:
+  rede:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.0.0/24
+
