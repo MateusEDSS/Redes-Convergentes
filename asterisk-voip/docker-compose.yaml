@@ -13,16 +13,18 @@ services:
     networks:
       - redeasterisk
     ports:
-      - "5060:5060/udp"
-      - "10000-20000:10000-20000/udp"
+      - "20001:14774/udp"
     volumes:
       - ./asterisk-configs:/etc/asterisk # Monta a pasta de configuração local
     restart: unless-stopped
     stdin_open: true  # CORRIGIDO: de 'stdin: true' para 'stdin_open: true'
     tty: true
-    command: /bin/bash
+    command: asterisk -vvvcf
 
   linphone_pedro:
+    image: asterisk-voip-linphone_pedro
+    volumes:
+      - ./linphone-configs/pedro/.linphonerc:/home/pedro/.linphonerc
     build:
       context: .
       dockerfile: Dockerfile.linphone
@@ -38,9 +40,12 @@ services:
       - asterisk
     tty: true # Mantém o stdin aberto para linphonec
     stdin_open: true # Mantém o stdin aberto para linphonec
-    restart: unless-stopped
+    restart: no
 
   linphone_maria:
+    image: asterisk-voip-linphone_maria
+    volumes:
+      - ./linphone-configs/maria/.linphonerc:/home/maria/.linphonerc
     build:
       context: .
       dockerfile: Dockerfile.linphone
@@ -55,4 +60,4 @@ services:
       - asterisk
     tty: true
     stdin_open: true
-    restart: unless-stopped
+    restart: no

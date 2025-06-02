@@ -1,0 +1,10 @@
+[proxy]
+reg_identity=sip:maria@172.18.0.2
+reg_proxy=sip:172.18.0.2
+reg_route=sip:172.18.0.2
+username=maria
+password=1234
+
+[general]
+ui_language=pt_BR
+
