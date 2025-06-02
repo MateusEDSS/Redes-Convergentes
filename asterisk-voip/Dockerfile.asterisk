@@ -1,0 +1,22 @@
+# Dockerfile.asterisk
+FROM debian:bullseye-slim
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y asterisk asterisk-core-sounds-en-gsm && \
+    rm -rf /var/lib/apt/lists/*
+
+# Cria diretórios que o Asterisk pode precisar
+RUN mkdir -p /var/run/asterisk /var/log/asterisk /var/lib/asterisk/moh /var/spool/asterisk/voicemail && \
+    chown -R asterisk:asterisk /var/run/asterisk /var/log/asterisk /var/lib/asterisk /var/spool/asterisk
+
+# Usuário Asterisk (geralmente criado pelo pacote)
+USER asterisk
+
+# Expõe as portas padrão
+EXPOSE 5060/udp
+EXPOSE 10000-20000/udp
+
+# Comando para iniciar o Asterisk em modo console e verboso
+CMD ["asterisk", "-vvvcf"]

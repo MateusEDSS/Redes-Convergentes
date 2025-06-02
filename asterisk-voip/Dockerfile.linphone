@@ -1,0 +1,40 @@
+FROM debian:stable-slim
+
+# Instala o cliente de console Linphone e dependências
+# libgbm1 é uma dependência comum que pode ser necessária mesmo para versões nogtk
+RUN apt-get update && \
+    apt-get install -y linphone-nogtk libgbm1 && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Variáveis de ambiente que serão configuradas pelo docker-compose
+# Estas são usadas para construir o caminho do arquivo de configuração
+ENV SIP_USER=""
+# ENV SIP_PASS="" # A senha geralmente é gerenciada dentro do arquivo de configuração por segurança
+
+# ENTRYPOINT permite a expansão de variáveis no CMD e o tratamento adequado de sinais
+ENTRYPOINT ["/bin/sh", "-c"]
+
+# CMD para iniciar o linphonec (cliente de console)
+# Ele usará a variável de ambiente SIP_USER para determinar o caminho do arquivo de configuração.
+# Certifique-se de que o arquivo de configuração (ex: .linphonerc) esteja presente no volume montado
+# em /home/$SIP_USER/.linphonerc (ex: ./linphone-configs/maria/.linphonerc no seu computador host).
+# Ajuste o comando se o linphonec precisar de outras flags ou um nome/caminho de arquivo de configuração diferente.
+CMD ["echo \"Iniciando Linphone (console) para o usuário: $SIP_USER, usando config: /home/$SIP_USER/.linphonerc\"; \
+      exec linphonec -c \"/home/$SIP_USER/.linphonerc\""]
+
+# Nota:
+# Se o linphonec precisar ser executado como um usuário específico dentro do contêiner
+# (e esse usuário corresponder a $SIP_USER), você pode precisar adicionar lógica de criação de usuário
+# e usar `USER $SIP_USER` ou `su - $SIP_USER -c "..."` no CMD.
+# No entanto, com os volumes montados em /home/$SIP_USER, executar como root (padrão no contêiner)
+# e apontar para esses caminhos para configuração geralmente é suficiente se as permissões permitirem,
+# ou se o próprio linphonec gerenciar a configuração específica do usuário nesse caminho.
+# Para simplificar, este exemplo assume que o linphonec lida com o caminho corretamente.
+#
+# Se o linphonec (versão nogtk) suportar diretamente flags como --username e --password
+# e você preferir usá-las em vez de depender apenas do arquivo de configuração,
+# você poderia ajustar o CMD, por exemplo:
+# CMD ["echo \"Iniciando Linphone (console) para o usuário: $SIP_USER...\"; \
+#      exec linphonec --username \"$SIP_USER\" --password \"$SIP_PASS\" --config \"/home/$SIP_USER/.linphonerc\""]
+# Consulte `linphonec --help` para as opções de linha de comando disponíveis.
